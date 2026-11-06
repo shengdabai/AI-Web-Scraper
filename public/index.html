@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI信息抓取 — 一行代码提取任意网页的结构化数据</title>
+    <meta name="description" content="基于 Firecrawl 的智能网页数据提取 API，提供 RESTful 接口和 Chrome 扩展。开发者友好的网页抓取、文字提取、整站爬取、批量处理一体化解决方案。">
+    <meta name="keywords" content="web scraping, firecrawl, API, data extraction, 网页抓取, 信息提取, Chrome extension">
+    <meta name="author" content="Z Turns Go">
+    <link rel="canonical" href="https://ai-scraper.zturnsgo.com">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ai-scraper.zturnsgo.com">
+    <meta property="og:title" content="AI信息抓取 — 一行代码提取任意网页的结构化数据">
+    <meta property="og:description" content="基于 Firecrawl 的智能网页数据提取 API，8 个 RESTful 端点，Chrome 扩展，开发者友好。">
+    <meta property="og:image" content="https://ai-scraper.zturnsgo.com/og-image.png">
+    <meta property="og:locale" content="zh_CN">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://ai-scraper.zturnsgo.com">
+    <meta name="twitter:title" content="AI信息抓取 — 一行代码提取任意网页的结构化数据">
+    <meta name="twitter:description" content="基于 Firecrawl 的智能网页数据提取 API，开发者友好的网页抓取服务。">
+    <meta name="twitter:image" content="https://ai-scraper.zturnsgo.com/og-image.png">
+
+    <!-- JSON-LD structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "AI信息抓取",
+      "description": "基于 Firecrawl 的智能网页数据提取 API",
+      "url": "https://ai-scraper.zturnsgo.com",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "offers": [
+        {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "CNY",
+          "name": "免费版"
+        },
+        {
+          "@type": "Offer",
+          "price": "99",
+          "priceCurrency": "CNY",
+          "name": "专业版",
+          "billingIncrement": "Monthly"
+        }
+      ]
+    }
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+            background: #0a0a0a;
+            color: #e5e5e5;
+            line-height: 1.6;
+        }
+        .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+        /* Navigation */
+        nav {
+            padding: 20px 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { font-size: 1.25rem; font-weight: 700; color: #fff; }
+        .logo span { color: #6366f1; }
+        .nav-links { display: flex; gap: 24px; }
+        .nav-links a {
+            color: #a3a3a3;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: #fff; }
+
+        /* Hero */
+        .hero {
+            padding: 100px 0 80px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 1.25rem;
+            color: #a3a3a3;
+            max-width: 640px;
+            margin: 0 auto 40px;
+        }
+        .cta-group { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #6366f1;
+            color: #fff;
+        }
+        .btn-primary:hover { background: #4f46e5; transform: translateY(-2px); }
+        .btn-secondary {
+            background: #1a1a1a;
+            color: #e5e5e5;
+            border: 1px solid #333;
+        }
+        .btn-secondary:hover { border-color: #6366f1; }
+
+        /* Code block */
+        .code-block {
+            margin: 60px auto;
+            max-width: 700px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 24px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            text-align: left;
+            overflow-x: auto;
+        }
+        .code-block .comment { color: #6b7280; }
+        .code-block .keyword { color: #c084fc; }
+        .code-block .string { color: #34d399; }
+        .code-block .url { color: #60a5fa; }
+
+        /* Features */
+        .features { padding: 80px 0; }
+        .features h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 48px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+        .feature-card {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 28px;
+            transition: border-color 0.2s;
+        }
+        .feature-card:hover { border-color: #6366f1; }
+        .feature-icon { font-size: 2rem; margin-bottom: 16px; }
+        .feature-card h3 { font-size: 1.1rem; margin-bottom: 8px; color: #fff; }
+        .feature-card p { color: #a3a3a3; font-size: 0.9rem; }
+
+        /* Pricing */
+        .pricing { padding: 80px 0; }
+        .pricing h2 { text-align: center; font-size: 2rem; margin-bottom: 48px; }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .pricing-card {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+        }
+        .pricing-card.featured {
+            border-color: #6366f1;
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.15);
+        }
+        .pricing-card h3 { font-size: 1.2rem; margin-bottom: 8px; }
+        .pricing-card .price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #fff;
+            margin: 16px 0;
+        }
+        .pricing-card .price span { font-size: 1rem; font-weight: 400; color: #a3a3a3; }
+        .pricing-card ul {
+            list-style: none;
+            text-align: left;
+            margin: 24px 0;
+        }
+        .pricing-card li {
+            padding: 6px 0;
+            color: #a3a3a3;
+            font-size: 0.9rem;
+        }
+        .pricing-card li::before { content: '✓ '; color: #34d399; }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            border-top: 1px solid #1a1a1a;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+        footer a { color: #6366f1; text-decoration: none; }
+
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 2rem; }
+            .hero p { font-size: 1rem; }
+            .code-block { font-size: 0.8rem; padding: 16px; }
+            .nav-links a { padding: 5px 2px; }
+            footer a { padding: max(0px, calc(16px - 0.5em)) 3px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <div class="logo">AI<span>抓取</span></div>
+            <div class="nav-links">
+                <a href="#features">功能</a>
+                <a href="#pricing">定价</a>
+                <a href="https://github.com/shengdabai/ai-web-scraper">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <h1>一行代码提取<br>任意网页的结构化数据</h1>
+            <p>基于 Firecrawl 的智能网页数据提取 API。8 个 RESTful 端点，Chrome 扩展，开发者友好。</p>
+            <div class="cta-group">
+                <a href="https://github.com/shengdabai/ai-web-scraper" class="btn btn-primary">GitHub 开源</a>
+                <a href="#features" class="btn btn-secondary">了解功能</a>
+            </div>
+            <div class="code-block">
+                <span class="comment">// 单页抓取，30 秒拿到数据</span><br>
+                <span class="keyword">const</span> res = <span class="keyword">await</span> fetch(<span class="string">'<span class="url">/api/firecrawl/scrape</span>'</span>, {<br>
+                &nbsp;&nbsp;method: <span class="string">'POST'</span>,<br>
+                &nbsp;&nbsp;body: JSON.stringify({<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;url: <span class="string">'<span class="url">https://example.com</span>'</span>,<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;formats: [<span class="string">'markdown'</span>]<br>
+                &nbsp;&nbsp;})<br>
+                });
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2>核心功能</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📄</div>
+                    <h3>单页抓取</h3>
+                    <p>指定 URL 即刻抓取，支持 Markdown/HTML 输出，自动清理网页噪音。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🕸️</div>
+                    <h3>整站爬取</h3>
+                    <p>自动发现并抓取目标网站所有页面，异步任务，可查询进度。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📦</div>
+                    <h3>批量提取</h3>
+                    <p>一次提交最多 50 个 URL，并发处理，返回结构化结果。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>智能搜索</h3>
+                    <p>基于关键词搜索相关网页，精准定位目标信息。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🗺️</div>
+                    <h3>站点地图</h3>
+                    <p>自动发现网站所有可访问 URL，快速建立站点索引。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧩</div>
+                    <h3>Chrome 扩展</h3>
+                    <p>一键导出 NotebookLM 笔记，MV3 架构，轻量实用。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="pricing">
+        <div class="container">
+            <h2>定价方案</h2>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>免费版</h3>
+                    <div class="price">¥0</div>
+                    <ul>
+                        <li>每日 100 次 API 调用</li>
+                        <li>单页抓取</li>
+                        <li>文字提取</li>
+                        <li>Chrome 扩展</li>
+                    </ul>
+                    <a href="https://github.com/shengdabai/ai-web-scraper" class="btn btn-secondary" style="width:100%">开始使用</a>
+                </div>
+                <div class="pricing-card featured">
+                    <h3>专业版</h3>
+                    <div class="price">¥99<span>/月</span></div>
+                    <ul>
+                        <li>每日 5000 次调用</li>
+                        <li>批量提取 + 整站爬取</li>
+                        <li>智能搜索 + 站点地图</li>
+                        <li>优先技术支持</li>
+                    </ul>
+                    <a href="mailto:contact@zturnsgo.com" class="btn btn-primary" style="width:100%">联系我们</a>
+                </div>
+                <div class="pricing-card">
+                    <h3>企业版</h3>
+                    <div class="price">¥499<span>/月</span></div>
+                    <ul>
+                        <li>无限调用</li>
+                        <li>私有部署</li>
+                        <li>SLA 保障</li>
+                        <li>专属技术支持</li>
+                    </ul>
+                    <a href="mailto:contact@zturnsgo.com" class="btn btn-secondary" style="width:100%">联系我们</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>Built with ❤️ by <a href="https://zturnsgo.com">Z Turns Go</a></p>
+            <p style="margin-top:8px">MIT License · <a href="https://github.com/shengdabai/ai-web-scraper">GitHub</a> · <a href="https://github.com/sponsors/shengdabai">赞助</a></p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firecrawl 网页文字提取演示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input[type="url"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="url"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .result {
+            display: none;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .result h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+        
+        .text-content {
+            background: white;
+            border: 1px solid #e1e8ed;
+            border-radius: 6px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+        }
+        
+        .examples {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e1e8ed;
+        }
+        
+        .example-urls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .example-url {
+            background: #ecf0f1;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .example-url:hover {
+            background: #d5dbdb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔥 Firecrawl</h1>
+            <p>网页文字提取演示工具</p>
+        </div>
+        
+        <div class="content">
+            <div class="form-group">
+                <label for="urlInput">🌐 输入要提取文字的网页URL:</label>
+                <input type="url" id="urlInput" placeholder="https://example.com" value="https://example.com">
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-primary" onclick="extractText()">📝 提取文字</button>
+                <button class="btn-secondary" onclick="scrapeContent()">🔍 完整抓取</button>
+                <button class="btn-secondary" onclick="clearResult()">🗑️ 清空结果</button>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>正在处理中，请稍候...</p>
+            </div>
+            
+            <div class="result" id="result">
+                <h3>📊 提取结果</h3>
+                <div class="stats" id="stats"></div>
+                <div class="text-content" id="textContent"></div>
+            </div>
+            
+            <div class="error" id="error" style="display: none;"></div>
+            
+            <div class="examples">
+                <h3>💡 示例网址 (点击快速填入):</h3>
+                <div class="example-urls">
+                    <span class="example-url" onclick="setUrl('https://example.com')">Example.com</span>
+                    <span class="example-url" onclick="setUrl('https://httpbin.org/html')">HTTPBin HTML</span>
+                    <span class="example-url" onclick="setUrl('https://docs.firecrawl.dev')">Firecrawl 文档</span>
+                    <span class="example-url" onclick="setUrl('https://github.com/firecrawl/firecrawl')">GitHub 仓库</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api/firecrawl';
+        
+        function setUrl(url) {
+            document.getElementById('urlInput').value = url;
+        }
+        
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        function showError(message) {
+            hideLoading();
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = `❌ 错误: ${message}`;
+            errorDiv.style.display = 'block';
+        }
+        
+        function showResult(data, type = 'text') {
+            hideLoading();
+            
+            const resultDiv = document.getElementById('result');
+            const statsDiv = document.getElementById('stats');
+            const textContentDiv = document.getElementById('textContent');
+            
+            // 显示统计信息
+            let stats = '';
+            if (type === 'text') {
+                stats = `
+                    <div class="stat-item">
+                        <div class="stat-value">${data.wordCount || 0}</div>
+                        <div class="stat-label">词数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${data.text ? data.text.length : 0}</div>
+                        <div class="stat-label">字符数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${data.metadata?.title ? '✅' : '❌'}</div>
+                        <div class="stat-label">标题</div>
+                    </div>
+                `;
+                textContentDiv.textContent = data.text || '未提取到文字内容';
+            } else if (type === 'scrape') {
+                stats = `
+                    <div class="stat-item">
+                        <div class="stat-value">${data.data?.markdown ? data.data.markdown.length : 0}</div>
+                        <div class="stat-label">Markdown 长度</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${data.data?.html ? data.data.html.length : 0}</div>
+                        <div class="stat-label">HTML 长度</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${data.data?.metadata?.title ? '✅' : '❌'}</div>
+                        <div class="stat-label">标题</div>
+                    </div>
+                `;
+                textContentDiv.textContent = data.data?.markdown || data.data?.html || '未抓取到内容';
+            }
+            
+            statsDiv.innerHTML = stats;
+            resultDiv.style.display = 'block';
+        }
+        
+        async function extractText() {
+            const url = document.getElementById('urlInput').value.trim();
+            if (!url) {
+                showError('请输入有效的URL');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                const response = await fetch(`${API_BASE}/extract-text`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ url, cleanText: true })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || '请求失败');
+                }
+                
+                showResult(data, 'text');
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+        
+        async function scrapeContent() {
+            const url = document.getElementById('urlInput').value.trim();
+            if (!url) {
+                showError('请输入有效的URL');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                const response = await fetch(`${API_BASE}/scrape`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        url,
+                        options: {
+                            formats: ['markdown', 'html'],
+                            onlyMainContent: true
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || '请求失败');
+                }
+                
+                showResult(data, 'scrape');
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+        
+        function clearResult() {
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('urlInput').value = '';
+        }
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 添加回车键支持
+            document.getElementById('urlInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    extractText();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

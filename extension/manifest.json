@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "NotebookLM 笔记下载器",
+  "version": "1.0.0",
+  "description": "一键下载 Google NotebookLM 笔记内容",
+  "permissions": [
+    "activeTab",
+    "downloads"
+  ],
+  "host_permissions": [
+    "https://notebooklm.google.com/*",
+    "https://notebooklm.googleusercontent.com/*",
+    "http://localhost:3000/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://notebooklm.google.com/*",
+        "https://notebooklm.googleusercontent.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "run_at": "document_end"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "NotebookLM 下载器"
+  },
+  "icons": {
+    "16": "icons/icon16.svg",
+    "48": "icons/icon48.svg",
+    "128": "icons/icon128.svg"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["styles.css"],
+      "matches": ["https://notebooklm.google.com/*"]
+    }
+  ]
+}

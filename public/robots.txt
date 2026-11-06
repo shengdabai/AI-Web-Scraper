@@ -1,0 +1,6 @@
+{
+  "rules": [
+    { "userAgent": "*", "allow": "/" },
+    { "userAgent": "*", "disallow": "/api/" }
+  ]
+}

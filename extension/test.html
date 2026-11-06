@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NotebookLM 扩展测试页面</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .code {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 14px;
+        }
+        .step {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-left: 4px solid #4285f4;
+            background: white;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 4px;
+            color: #856404;
+        }
+        @media (max-width: 480px) {
+            a { padding-block: max(0px, calc(16px - 0.5em)); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 NotebookLM 笔记下载器</h1>
+        <p>Chrome 浏览器扩展安装和测试指南</p>
+    </div>
+
+    <div class="section">
+        <h2>📋 安装步骤</h2>
+        
+        <div class="step">
+            <h3>1. 确保 API 服务运行</h3>
+            <p>在终端中运行以下命令：</p>
+            <div class="code">cd ~/Programming/AI信息抓取<br>npm run dev</div>
+            <p>确保服务在 <strong>http://localhost:3000</strong> 上运行。</p>
+        </div>
+
+        <div class="step">
+            <h3>2. 安装 Chrome 扩展</h3>
+            <ol>
+                <li>打开 Chrome 浏览器</li>
+                <li>访问 <code>chrome://extensions/</code></li>
+                <li>开启右上角的「开发者模式」</li>
+                <li>点击「加载已解压的扩展程序」</li>
+                <li>选择扩展文件夹：<br><code>~/Programming/AI信息抓取/extension</code></li>
+                <li>扩展安装完成！</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <h3>3. 测试扩展功能</h3>
+            <ol>
+                <li>访问 <a href="https://notebooklm.google.com" target="_blank">Google NotebookLM</a></li>
+                <li>登录您的 Google 账户</li>
+                <li>打开任意笔记页面</li>
+                <li>查看页面右上角是否出现下载按钮</li>
+                <li>点击浏览器工具栏中的扩展图标测试弹窗功能</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>🔧 功能特性</h2>
+        <ul>
+            <li><strong>智能检测</strong>: 自动识别 NotebookLM 页面</li>
+            <li><strong>一键下载</strong>: 页面内浮动按钮 + 扩展弹窗双重方式</li>
+            <li><strong>内容提取</strong>: 基于 Firecrawl API 的高质量文本提取</li>
+            <li><strong>格式化输出</strong>: Markdown 格式，包含元数据信息</li>
+            <li><strong>美观界面</strong>: 现代化设计，适配深色模式</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>🎯 使用方法</h2>
+        
+        <h3>方法一：页面内下载按钮</h3>
+        <p>在 NotebookLM 页面上，右上角会自动出现一个「下载笔记」按钮，点击即可下载当前页面内容。</p>
+        
+        <h3>方法二：扩展弹窗</h3>
+        <p>点击浏览器工具栏中的扩展图标，在弹出窗口中点击「下载当前页面」按钮。</p>
+    </div>
+
+    <div class="warning">
+        <h3>⚠️ 注意事项</h3>
+        <ul>
+            <li>确保 API 服务 (localhost:3000) 正在运行</li>
+            <li>扩展仅在 NotebookLM 相关页面激活</li>
+            <li>需要等待页面完全加载后再使用下载功能</li>
+            <li>下载的文件为 Markdown 格式 (.md)</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>🐛 故障排除</h2>
+        
+        <h3>扩展无法工作</h3>
+        <ul>
+            <li>检查 API 服务是否运行在 localhost:3000</li>
+            <li>确认在 NotebookLM 页面使用</li>
+            <li>检查浏览器控制台是否有错误信息</li>
+        </ul>
+        
+        <h3>下载失败</h3>
+        <ul>
+            <li>检查网络连接</li>
+            <li>确认 Firecrawl API Key 配置正确</li>
+            <li>查看浏览器开发者工具的 Network 标签</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>📁 文件结构</h2>
+        <div class="code">
+extension/<br>
+├── manifest.json     # 扩展配置<br>
+├── content.js        # 内容脚本<br>
+├── popup.html        # 弹窗页面<br>
+├── popup.js          # 弹窗逻辑<br>
+├── styles.css        # 样式文件<br>
+├── icons/            # 图标文件<br>
+└── README.md         # 说明文档
+        </div>
+    </div>
+
+    <script>
+        // 简单的页面交互
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('NotebookLM 扩展测试页面已加载');
+            
+            // 检查 API 服务状态
+            fetch('http://localhost:3000/api/firecrawl/scrape', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    url: 'https://httpbin.org/html'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('✅ API 服务正常运行');
+                } else {
+                    console.log('❌ API 服务异常:', data.error);
+                }
+            })
+            .catch(error => {
+                console.log('❌ 无法连接到 API 服务:', error.message);
+            });
+        });
+    </script>
+</body>
+</html>
