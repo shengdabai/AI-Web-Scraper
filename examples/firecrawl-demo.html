@@ -301,9 +301,10 @@
             // 显示统计信息
             let stats = '';
             if (type === 'text') {
+                const wordCount = Number.isFinite(data.wordCount) ? data.wordCount : 0;
                 stats = `
                     <div class="stat-item">
-                        <div class="stat-value">${data.wordCount || 0}</div>
+                        <div class="stat-value">${wordCount}</div>
                         <div class="stat-label">词数</div>
                     </div>
                     <div class="stat-item">
